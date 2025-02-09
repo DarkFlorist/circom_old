@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node test/cases.js",
-    "buildParser": "cd parser && npm install && npm run buildParser"
+    "buildParser": "cd parser && npm ci --ignore-scripts && npm run buildParser"
   },
   "bin": {
     "circom": "cli.js"
