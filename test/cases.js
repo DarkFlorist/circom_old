@@ -1,23 +1,14 @@
-const chai = require("chai");
-const path = require("path");
-const snarkjs = require("snarkjs");
-
+import { describe, it } from 'micro-should';
+import { deepStrictEqual, rejects } from 'node:assert';
+import * as path from 'node:path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import snarkjs from 'snarkjs';
+import compiler from '../index.js';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const bigInt = snarkjs.bigInt;
 
-const compiler = require("../index.js");
-
-const assert = chai.assert;
-
-async function assertThrowsAsync(fn, regExp) {
-    let f = () => {};
-    try {
-        await fn();
-    } catch(e) {
-        f = () => { throw e; };
-    } finally {
-        assert.throws(f, regExp);
-    }
-}
+const assert = function(clause) { deepStrictEqual(true, clause) };
 
 describe("Sum test", () => {
     it("Should compile a code with an undefined if", async () => {
@@ -44,11 +35,11 @@ describe("Sum test", () => {
         assert(witness[1].equals(bigInt(111*111)));
         assert(witness[2].equals(bigInt(111)));
     });
-//    it("Should assign signal ERROR", async () => {
-//        await assertThrowsAsync(async () => {
-//            await compiler(path.join(__dirname, "circuits", "assignsignal.circom"));
-//        }, /Cannot assign to a signal .*/);
-//    });
+   it("Should assign signal ERROR", async () => {
+        await rejects(() => compiler(path.join(__dirname, 'circuits', 'assignsignal.circom')), {
+            message: /Cannot assign to a signal .*/,
+        });
+   });
     it("Should compile a code with compute", async () => {
         const cirDef = await compiler(path.join(__dirname, "circuits", "compute.circom"));
 
@@ -62,6 +53,8 @@ describe("Sum test", () => {
     it("Should compile a code with compute", async () => {
         const cirDef = await compiler(path.join(__dirname, "circuits", "inout.circom"));
 
-        assert.equal(cirDef.constraints.length, 1);
+        deepStrictEqual(cirDef.constraints.length, 1);
     });
 });
+
+it.runWhen(import.meta.url);
